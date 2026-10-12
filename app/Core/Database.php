@@ -62,9 +62,22 @@ final class Database
             $ca = (string) ($config['ssl_ca'] ?? '');
             if ($ca !== '' && is_file($ca)) {
                 $options[PDO::MYSQL_ATTR_SSL_CA] = $ca;
-            } elseif (is_file('/etc/ssl/certs/ca-certificates.crt')) {
-                // Debian/Ubuntu container standard CA bundle
-                $options[PDO::MYSQL_ATTR_SSL_CA] = '/etc/ssl/certs/ca-certificates.crt';
+            } else {
+                $candidates = [
+                    '/etc/ssl/certs/ca-certificates.crt',                       // Debian / Ubuntu (Render)
+                    '/etc/pki/tls/certs/ca-bundle.crt',                         // Alpine / RHEL
+                    (string) ini_get('openssl.cafile'),
+                    (string) ini_get('curl.cainfo'),
+                    'C:/xampp/apache/bin/curl-ca-bundle.crt',                   // XAMPP Windows
+                    'C:/Program Files/Git/mingw64/etc/ssl/certs/ca-bundle.crt', // Git for Windows
+                ];
+
+                foreach ($candidates as $candidate) {
+                    if ($candidate !== '' && is_file($candidate)) {
+                        $options[PDO::MYSQL_ATTR_SSL_CA] = $candidate;
+                        break;
+                    }
+                }
             }
         }
 
