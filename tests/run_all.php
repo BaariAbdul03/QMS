@@ -20,6 +20,7 @@ $tests = [
     'state_machine_test.php',
     'concurrency_test.php',
     'double_call_next_test.php',
+    'eta_test.php',
     'security_test.php',
     'http_auth_test.php',
 ];

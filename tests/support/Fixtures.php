@@ -151,6 +151,79 @@ final class Fixtures
         )->execute([$serviceId, $date, $number, $number]);
     }
 
+    /**
+     * Insert completed tokens with EXACT service durations, newest first.
+     *
+     * Timestamps are computed in PHP rather than with SQL intervals so the
+     * durations the ETA reads back are exactly the ones asked for — including
+     * sub-minute and over-an-hour values that the outlier filter must reject.
+     *
+     * @param list<int> $seconds duration of serving_at -> completed_at, in seconds
+     */
+    public static function completedWithDurations(array $seconds, int $serviceId = self::GENERAL): void
+    {
+        $pdo    = Database::connection();
+        $date   = Clock::today();
+        $now    = Clock::now();
+        $prefix = $serviceId === self::GENERAL ? 'A' : 'B';
+
+        $number = (int) $pdo->query(
+            'SELECT COALESCE(MAX(number), 0) FROM tokens WHERE service_id = ' . $serviceId
+            . ' AND queue_date = ' . $pdo->quote($date)
+        )->fetchColumn();
+
+        $insert = $pdo->prepare(
+            "INSERT INTO tokens (public_id, service_id, counter_id, queue_date, number, display_code, status,
+                                 taken_at, called_at, serving_at, completed_at)
+             VALUES (?, ?, 1, ?, ?, ?, 'completed', ?, ?, ?, ?)"
+        );
+
+        $offset = 0;
+
+        foreach ($seconds as $duration) {
+            $number++;
+
+            $completed = $now->modify(sprintf('-%d seconds', $offset));
+            $serving   = $completed->modify(sprintf('-%d seconds', $duration));
+            $called    = $serving->modify('-30 seconds');
+            $taken     = $called->modify('-30 seconds');
+            $offset   += $duration + 60;
+
+            $insert->execute([
+                bin2hex(random_bytes(8)),
+                $serviceId,
+                $date,
+                $number,
+                Token::formatCode($prefix, $number),
+                $taken->format('Y-m-d H:i:s'),
+                $called->format('Y-m-d H:i:s'),
+                $serving->format('Y-m-d H:i:s'),
+                $completed->format('Y-m-d H:i:s'),
+            ]);
+        }
+
+        $pdo->prepare(
+            'INSERT INTO queue_counters (service_id, queue_date, last_number) VALUES (?, ?, ?)
+             ON DUPLICATE KEY UPDATE last_number = GREATEST(last_number, ?)'
+        )->execute([$serviceId, $date, $number, $number]);
+    }
+
+    /**
+     * A token with $ahead people in front of it, for ETA arithmetic.
+     *
+     * @return array<string, mixed> the token at the back (the one being measured)
+     */
+    public static function tokenWithAhead(int $ahead, int $serviceId = self::GENERAL): array
+    {
+        $target = null;
+
+        for ($i = 0; $i <= $ahead; $i++) {
+            $target = Token::issue($serviceId);
+        }
+
+        return $target ?? throw new \RuntimeException('tokenWithAhead() needs ahead >= 0');
+    }
+
     public static function pdo(): PDO
     {
         return Database::connection();
