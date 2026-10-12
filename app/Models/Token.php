@@ -478,6 +478,22 @@ final class Token
         ];
     }
 
+    /**
+     * The same shape as present(), plus the internal id.
+     *
+     * Staff actions (start, complete, no-show, recall) address a token by its
+     * id, so a staff response has to be self-sufficient — otherwise the client
+     * would have to poll again just to act on the token it was just handed.
+     * The id never appears in a visitor payload.
+     *
+     * @param array<string, mixed> $token
+     * @return array<string, mixed>
+     */
+    public static function presentForStaff(array $token, ?int $position = null): array
+    {
+        return ['id' => (int) $token['id']] + self::present($token, $position);
+    }
+
     private const SELECT = 'SELECT t.*, s.name AS service_name, s.prefix AS service_prefix,
                                    s.avg_service_minutes AS fallback_minutes,
                                    c.name AS counter_name, c.staff_name AS counter_staff

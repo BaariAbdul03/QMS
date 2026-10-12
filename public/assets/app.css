@@ -480,3 +480,429 @@
 .qms-toast[hidden] {
     display: none;
 }
+
+/* ==========================================================================
+   Visitor page
+   ========================================================================== */
+
+.qms-body--visitor {
+    background:
+        radial-gradient(900px 420px at 80% -12%, #dfeae7 0%, transparent 62%),
+        var(--qms-paper);
+}
+
+.qms-visitor {
+    max-width: 30rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 3rem;
+}
+
+.qms-visitor__eyebrow {
+    margin: 0 0 .3rem;
+    font-family: var(--qms-mono);
+    font-size: .72rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--qms-accent);
+}
+
+.qms-visitor__title {
+    margin: 0 0 .35rem;
+    font-size: 1.75rem;
+    font-weight: 650;
+    letter-spacing: -.02em;
+}
+
+.qms-visitor__hint {
+    margin: 0 0 1.5rem;
+    color: var(--qms-ink-soft);
+    font-size: .95rem;
+}
+
+.qms-picker {
+    display: grid;
+    gap: .75rem;
+}
+
+.qms-pick {
+    display: grid;
+    gap: .2rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--qms-line);
+    border-left: 4px solid var(--qms-accent);
+    border-radius: var(--qms-radius);
+    background: var(--qms-surface);
+    text-align: left;
+    cursor: pointer;
+    transition: transform .12s ease, box-shadow .12s ease;
+}
+
+.qms-pick:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(20, 24, 31, .09);
+}
+
+.qms-pick:disabled {
+    opacity: .55;
+    cursor: progress;
+}
+
+.qms-pick__name {
+    font-size: 1.1rem;
+    font-weight: 650;
+}
+
+.qms-pick__prefix,
+.qms-pick__meta {
+    font-size: .82rem;
+    color: var(--qms-ink-soft);
+}
+
+.qms-pick__prefix {
+    font-family: var(--qms-mono);
+    letter-spacing: .06em;
+}
+
+/* ---------------------------------------------------------------- ticket -- */
+
+.qms-ticket {
+    display: grid;
+    gap: .6rem;
+    padding: 1.5rem 1.25rem;
+    border: 1px solid var(--qms-line);
+    border-radius: 14px;
+    background: var(--qms-surface);
+    box-shadow: 0 14px 40px rgba(20, 24, 31, .08);
+    text-align: center;
+}
+
+.qms-ticket__code {
+    margin: 0;
+    font-family: var(--qms-mono);
+    font-size: clamp(3.2rem, 16vw, 4.6rem);
+    font-weight: 700;
+    letter-spacing: -.04em;
+    line-height: 1;
+}
+
+.qms-ticket__code[data-status="called"] {
+    color: var(--qms-warn);
+}
+
+.qms-ticket__code[data-status="serving"] {
+    color: var(--qms-accent);
+}
+
+.qms-ticket__status {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.qms-ticket__status--called {
+    color: var(--qms-warn);
+}
+
+.qms-ticket__status--serving {
+    color: var(--qms-accent);
+}
+
+.qms-ticket__status--completed,
+.qms-ticket__status--cancelled,
+.qms-ticket__status--no_show {
+    color: var(--qms-ink-soft);
+}
+
+.qms-ticket__service {
+    margin: 0;
+    font-size: .84rem;
+    color: var(--qms-ink-soft);
+}
+
+.qms-ticket__facts {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: .35rem .75rem;
+    margin: .75rem 0 0;
+    padding-top: .9rem;
+    border-top: 1px solid var(--qms-line);
+    font-size: .92rem;
+    text-align: left;
+}
+
+.qms-ticket__facts dt {
+    color: var(--qms-ink-soft);
+}
+
+.qms-ticket__facts dd {
+    margin: 0;
+    font-family: var(--qms-mono);
+    font-weight: 700;
+    text-align: right;
+}
+
+.qms-ticket__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    justify-content: center;
+    margin-top: .9rem;
+}
+
+.qms-ticket__note {
+    margin: .4rem 0 0;
+    font-size: .78rem;
+    color: var(--qms-ink-soft);
+}
+
+.qms-btn--primary {
+    background: var(--qms-accent);
+    color: #fff;
+}
+
+.qms-btn--danger {
+    background: transparent;
+    border-color: var(--qms-danger);
+    color: var(--qms-danger);
+}
+
+.qms-visitor__error {
+    margin: 1rem 0 0;
+    padding: .7rem .85rem;
+    border-left: 3px solid var(--qms-danger);
+    background: #fdf1f1;
+    color: var(--qms-danger);
+    font-size: .9rem;
+    border-radius: 0 6px 6px 0;
+}
+
+/* ==========================================================================
+   Display board — meant to be read from across a waiting room
+   ========================================================================== */
+
+.qms-body--display {
+    background: #0b0f14;
+    color: #eef3f8;
+}
+
+.qms-board {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    min-height: 100vh;
+    padding: 1.25rem 1.5rem;
+    gap: 1rem;
+}
+
+.qms-board__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: .75rem;
+    border-bottom: 1px solid #1d2632;
+}
+
+.qms-board__brand {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    font-size: 1.15rem;
+    font-weight: 650;
+    letter-spacing: -.01em;
+}
+
+.qms-board__dot {
+    width: .65rem;
+    height: .65rem;
+    border-radius: 50%;
+    background: #46d6a8;
+    box-shadow: 0 0 0 5px rgba(70, 214, 168, .16);
+}
+
+.qms-board__clock {
+    font-family: var(--qms-mono);
+    font-size: 1.5rem;
+    font-variant-numeric: tabular-nums;
+    color: #8fa3b8;
+}
+
+.qms-board__main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 17rem;
+    gap: 1.25rem;
+    min-height: 0;
+}
+
+.qms-board__counters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 1rem;
+    min-height: 0;
+}
+
+.qms-tile {
+    display: grid;
+    align-content: center;
+    gap: .4rem;
+    padding: 1.25rem;
+    border: 1px solid #1d2632;
+    border-radius: 12px;
+    background: #111823;
+    text-align: center;
+}
+
+.qms-tile--closed {
+    opacity: .45;
+}
+
+.qms-tile--serving {
+    background: #10241f;
+    border-color: #2c6f5c;
+}
+
+.qms-tile--called {
+    background: #24190a;
+    border-color: #8a5a12;
+}
+
+.qms-tile--announce {
+    animation: qms-pulse 1s ease-in-out 4;
+}
+
+@keyframes qms-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(240, 176, 66, 0); }
+    50%      { box-shadow: 0 0 0 10px rgba(240, 176, 66, .28); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .qms-tile--announce {
+        animation: none;
+    }
+}
+
+.qms-tile__name {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 650;
+    color: #b9c8d8;
+}
+
+.qms-tile__service {
+    margin: 0;
+    font-size: .9rem;
+    color: #6f8298;
+}
+
+.qms-tile__code {
+    margin: .2rem 0;
+    font-family: var(--qms-mono);
+    font-size: clamp(3rem, 9vh, 6rem);
+    font-weight: 700;
+    letter-spacing: -.04em;
+    line-height: .95;
+    font-variant-numeric: tabular-nums;
+}
+
+.qms-tile__code--empty {
+    color: #2f3c4d;
+}
+
+.qms-tile--called .qms-tile__code {
+    color: #f0b042;
+}
+
+.qms-tile--serving .qms-tile__code {
+    color: #57e0b0;
+}
+
+.qms-tile__pill {
+    margin: 0;
+    font-family: var(--qms-mono);
+    font-size: .78rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: #6f8298;
+}
+
+.qms-tile--called .qms-tile__pill {
+    color: #f0b042;
+}
+
+.qms-tile--serving .qms-tile__pill {
+    color: #57e0b0;
+}
+
+/* ----------------------------------------------------------- side panel -- */
+
+.qms-board__side {
+    display: grid;
+    align-content: start;
+    gap: .75rem;
+    padding: 1.1rem;
+    border: 1px solid #1d2632;
+    border-radius: 12px;
+    background: #111823;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.qms-board__side-title {
+    margin: 0;
+    font-family: var(--qms-mono);
+    font-size: .74rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: #6f8298;
+}
+
+.qms-board__services {
+    display: grid;
+    gap: .6rem;
+}
+
+.qms-board__service {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    gap: .2rem .5rem;
+    padding-bottom: .55rem;
+    border-bottom: 1px solid #1b2430;
+}
+
+.qms-board__service-name {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.qms-board__service-waiting {
+    font-family: var(--qms-mono);
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #f0b042;
+}
+
+.qms-board__service-meta {
+    grid-column: 1 / -1;
+    font-size: .76rem;
+    color: #6f8298;
+}
+
+.qms-board__foot {
+    padding-top: .6rem;
+    border-top: 1px solid #1d2632;
+    font-family: var(--qms-mono);
+    font-size: .78rem;
+    color: #55677c;
+}
+
+.qms-board__empty {
+    margin: 0;
+    color: #55677c;
+    font-size: .95rem;
+}
+
+@media (max-width: 900px) {
+    .qms-board__main {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

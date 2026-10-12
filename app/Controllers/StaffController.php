@@ -84,7 +84,7 @@ final class StaffController
             ])->withoutCache();
         }
 
-        return Response::ok(['token' => Token::present($token)])->withoutCache();
+        return Response::ok(['token' => Token::presentForStaff($token)])->withoutCache();
     }
 
     /**
@@ -98,7 +98,7 @@ final class StaffController
         $counterId = self::requireCounterId($request);
         $token     = Token::start($tokenId, $counterId);
 
-        return Response::ok(['token' => Token::present($token)])->withoutCache();
+        return Response::ok(['token' => Token::presentForStaff($token)])->withoutCache();
     }
 
     /**
@@ -110,7 +110,7 @@ final class StaffController
     {
         $token = Token::complete((int) ($params['id'] ?? 0));
 
-        return Response::ok(['token' => Token::present($token)])->withoutCache();
+        return Response::ok(['token' => Token::presentForStaff($token)])->withoutCache();
     }
 
     /**
@@ -122,7 +122,7 @@ final class StaffController
     {
         $token = Token::markNoShow((int) ($params['id'] ?? 0));
 
-        return Response::ok(['token' => Token::present($token)])->withoutCache();
+        return Response::ok(['token' => Token::presentForStaff($token)])->withoutCache();
     }
 
     /**
@@ -134,7 +134,7 @@ final class StaffController
     {
         $token = Token::recall((int) ($params['id'] ?? 0));
 
-        return Response::ok(['token' => Token::present($token)])->withoutCache();
+        return Response::ok(['token' => Token::presentForStaff($token)])->withoutCache();
     }
 
     /**

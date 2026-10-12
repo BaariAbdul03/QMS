@@ -6,6 +6,7 @@ use App\Controllers\AuthController;
 use App\Controllers\HealthController;
 use App\Controllers\PageController;
 use App\Controllers\StaffController;
+use App\Controllers\StatusController;
 use App\Controllers\TokenController;
 use App\Core\Auth;
 use App\Core\Config;
@@ -30,11 +31,16 @@ use App\Core\Throttle;
 */
 
 return static function (Router $router): void {
+    // --- pages ------------------------------------------------------------
+    $router->get('/', [PageController::class, 'visitor']);
+    $router->get('/display', [PageController::class, 'display']);
+
     // --- infrastructure ---------------------------------------------------
     $router->get('/api/health', [HealthController::class, 'show']);
 
     // --- public: visitor --------------------------------------------------
     $router->get('/api/services', [TokenController::class, 'services']);
+    $router->get('/api/status', [StatusController::class, 'show']);
     $router->post(
         '/api/tokens',
         [TokenController::class, 'store'],

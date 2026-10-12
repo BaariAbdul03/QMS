@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Core\Exceptions\HttpException;
 use App\Core\Request;
 use App\Core\Response;
+use App\Models\QueueStats;
 use App\Models\Service;
 use App\Models\Token;
 
@@ -44,7 +45,7 @@ final class TokenController
 
         $token = Token::issue($serviceId);
 
-        return Response::ok(Token::present($token), 201)->withoutCache();
+        return Response::ok(self::payload($token), 201)->withoutCache();
     }
 
     /**
@@ -56,7 +57,7 @@ final class TokenController
     {
         $token = Token::findByPublicIdOrFail((string) ($params['public_id'] ?? ''));
 
-        return Response::ok(Token::present($token))->withoutCache();
+        return Response::ok(self::payload($token))->withoutCache();
     }
 
     /**
@@ -68,6 +69,23 @@ final class TokenController
     {
         $token = Token::cancel((string) ($params['public_id'] ?? ''));
 
-        return Response::ok(Token::present($token))->withoutCache();
+        return Response::ok(self::payload($token))->withoutCache();
+    }
+
+    /**
+     * The visitor payload: the token plus its live position and ETA.
+     *
+     * `eta` is null once the token is no longer waiting, because there is no
+     * wait left to predict.
+     *
+     * @param array<string, mixed> $token
+     * @return array<string, mixed>
+     */
+    private static function payload(array $token): array
+    {
+        $payload        = Token::present($token);
+        $payload['eta'] = QueueStats::etaFor($token);
+
+        return $payload;
     }
 }
