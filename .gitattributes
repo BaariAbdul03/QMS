@@ -6,3 +6,7 @@
 *.jpg binary
 *.mp3 binary
 *.ico binary
+
+# Vendored third-party builds: keep the exact bytes so their SRI hashes stay
+# valid. These are Bootstrap 5.3.8 (see README for the published hashes).
+public/assets/vendor/* binary

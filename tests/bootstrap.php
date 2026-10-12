@@ -6,12 +6,10 @@ declare(strict_types=1);
 |--------------------------------------------------------------------------
 | Test bootstrap
 |--------------------------------------------------------------------------
-| Every test and worker script starts here. QMS_TESTING tells the app
-| bootstrap to keep raw error reporting, so a crashed test exits non-zero
-| instead of being caught by the JSON error handler.
+| Every test and worker script starts here. The app bootstrap already keeps
+| raw error reporting for the CLI, so a crashed test exits non-zero instead of
+| being swallowed by the JSON error handler.
 */
-
-putenv('QMS_TESTING=1');
 
 require dirname(__DIR__) . '/app/bootstrap.php';
 

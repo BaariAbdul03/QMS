@@ -70,22 +70,23 @@ final class Service
     {
         $date = $date ?? Clock::today();
 
+        // A counter with service_id NULL serves every service, so it counts as
+        // available for each of them — that is what makes the ETA denominator
+        // honest, since a floating desk really does drain any queue.
         $sql = "SELECT s.id, s.name, s.prefix, s.avg_service_minutes,
-                       COALESCE(q.waiting, 0) AS waiting,
-                       COALESCE(c.open_counters, 0) AS open_counters
+                       (SELECT COUNT(*)
+                          FROM tokens t
+                         WHERE t.service_id = s.id
+                           AND t.queue_date = ?
+                           AND t.status = 'waiting') AS waiting,
+                       (SELECT COUNT(*)
+                          FROM counters c
+                         WHERE c.is_open = 1
+                           AND (c.service_id = s.id OR c.service_id IS NULL)) AS open_counters,
+                       (SELECT COUNT(*)
+                          FROM counters c
+                         WHERE c.is_open = 1 AND c.service_id IS NULL) AS shared_counters
                 FROM services s
-                LEFT JOIN (
-                    SELECT service_id, COUNT(*) AS waiting
-                    FROM tokens
-                    WHERE queue_date = ? AND status = 'waiting'
-                    GROUP BY service_id
-                ) q ON q.service_id = s.id
-                LEFT JOIN (
-                    SELECT service_id, COUNT(*) AS open_counters
-                    FROM counters
-                    WHERE is_open = 1 AND service_id IS NOT NULL
-                    GROUP BY service_id
-                ) c ON c.service_id = s.id
                 WHERE s.is_active = 1
                 ORDER BY s.id";
 
@@ -93,12 +94,13 @@ final class Service
         $statement->execute([$date]);
 
         return array_map(static fn (array $row): array => [
-            'id'                 => (int) $row['id'],
-            'name'               => (string) $row['name'],
-            'prefix'             => (string) $row['prefix'],
-            'waiting'            => (int) $row['waiting'],
-            'open_counters'      => (int) $row['open_counters'],
-            'fallback_minutes'   => (float) $row['avg_service_minutes'],
+            'id'               => (int) $row['id'],
+            'name'             => (string) $row['name'],
+            'prefix'           => (string) $row['prefix'],
+            'waiting'          => (int) $row['waiting'],
+            'open_counters'    => (int) $row['open_counters'],
+            'shared_counters'  => (int) $row['shared_counters'],
+            'fallback_minutes' => (float) $row['avg_service_minutes'],
         ], $statement->fetchAll());
     }
 }

@@ -4,9 +4,15 @@ declare(strict_types=1);
 
 /*
 |--------------------------------------------------------------------------
-| Run every Phase 2 test file in its own process
+| Run every test file in its own process
 |--------------------------------------------------------------------------
-|   php tests/run_all.php
+|   bash bin/php.sh tests/run_all.php
+|
+| http_auth_test.php drives a running server and skips itself (with a reason)
+| when none is listening. Export QMS_TEST_STAFF_PASSWORD to exercise its
+| signed-in flow:
+|
+|   QMS_TEST_STAFF_PASSWORD='your-password' bash bin/php.sh tests/run_all.php
 |--------------------------------------------------------------------------
 */
 
@@ -14,6 +20,8 @@ $tests = [
     'state_machine_test.php',
     'concurrency_test.php',
     'double_call_next_test.php',
+    'security_test.php',
+    'http_auth_test.php',
 ];
 
 $failed = 0;

@@ -114,6 +114,11 @@ final class Request
                 if (is_array($json)) {
                     $decoded = $json;
                 }
+            } elseif (str_contains($contentType, 'x-www-form-urlencoded')) {
+                // PHP normally fills $_POST for this content type, but parsing
+                // the raw body as well keeps this object self-contained — which
+                // is what makes form posts testable without a web server.
+                parse_str($this->rawBody, $decoded);
             }
         }
 

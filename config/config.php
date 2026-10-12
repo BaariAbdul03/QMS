@@ -18,6 +18,8 @@ return [
         'env'      => Env::get('APP_ENV', 'local'),
         'debug'    => Env::bool('APP_DEBUG', false),
         'timezone' => Env::get('APP_TIMEZONE', 'Asia/Kolkata'),
+        // Set when public/ is not the document root (e.g. https://host/qms).
+        'base_path' => rtrim((string) Env::get('APP_BASE_PATH', ''), '/'),
     ],
 
     'db' => [

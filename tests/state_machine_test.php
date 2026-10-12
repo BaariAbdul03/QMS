@@ -13,13 +13,17 @@ declare(strict_types=1);
 |--------------------------------------------------------------------------
 */
 
+use App\Core\Auth;
 use App\Core\Clock;
+use App\Core\Config;
+use App\Core\Csrf;
 use App\Core\ErrorHandler;
 use App\Core\Exceptions\HttpException;
 use App\Core\Exceptions\InvalidTransitionException;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Router;
+use App\Core\Session;
 use App\Models\Counter;
 use App\Models\Service;
 use App\Models\Token;
@@ -337,12 +341,32 @@ $t->test('the API contract matches the plan: envelopes, status codes, no interna
 
     $get = static fn (string $path): Response => $dispatch(Request::create('GET', $path));
 
+    // Staff endpoints sit behind auth + CSRF since Phase 3.
+    // 1. Anonymous caller -> 401, before CSRF is even considered.
+    Session::reset();
+    Session::start();
+
+    $callNextPath = '/api/staff/counters/' . Fixtures::COUNTER_1 . '/call-next';
+
+    $t->assertSame(401, $dispatch(Request::create('POST', $callNextPath))->status(), 'anonymous staff write is 401');
+
+    // 2. Sign in in-process, then a write with no CSRF token -> 403.
+    $credentials = Config::all();
+    $credentials['security']['staff_password_hash'] = password_hash('contract-test', PASSWORD_DEFAULT);
+    Config::set($credentials);
+
+    Auth::attempt('contract-test');
+    $csrf = Csrf::token();
+
+    $t->assertSame(403, $dispatch(Request::create('POST', $callNextPath))->status(), 'signed in but no CSRF token is 403');
+
+    // 3. With credentials and a CSRF token, the API works.
     $post = static fn (string $path, array $body = []): Response => $dispatch(Request::create(
         'POST',
         $path,
         [],
         json_encode($body, JSON_THROW_ON_ERROR),
-        ['CONTENT_TYPE' => 'application/json'],
+        ['CONTENT_TYPE' => 'application/json', 'HTTP_X_CSRF_TOKEN' => $csrf],
     ));
 
     // POST /api/tokens -> 201 with the public payload
@@ -365,6 +389,7 @@ $t->test('the API contract matches the plan: envelopes, status codes, no interna
     $servicesPayload = json_decode($services->body(), true, 512, JSON_THROW_ON_ERROR);
     $t->assertSame(2, count($servicesPayload['data']), 'two active services');
     $t->assertSame(1, $servicesPayload['data'][0]['waiting'], 'waiting count for General OPD');
+    $t->assertSame(3, $servicesPayload['data'][0]['open_counters'], 'capacity includes the floating desk');
 
     // Validation
     $invalid = $post('/api/tokens', []);
@@ -403,13 +428,22 @@ $t->test('the API contract matches the plan: envelopes, status codes, no interna
     $t->assertSame(1, $overviewPayload['data']['totals']['completed'], 'one completion today');
 });
 
-$t->test('Service::listWithWaiting carries the fallback duration for the ETA', function (TestRunner $t): void {
+$t->test('Service::listWithWaiting carries the fallback duration and counter capacity', function (TestRunner $t): void {
     Fixtures::seed();
 
     $services = Service::listWithWaiting();
     $t->assertSame('General OPD', (string) $services[0]['name'], 'service name');
     $t->assertSame(7.0, (float) $services[0]['fallback_minutes'], 'fallback average');
-    $t->assertSame(2, (int) $services[0]['open_counters'], 'two counters dedicated to General OPD');
+
+    // Two dedicated desks plus the floating one, which really can drain this
+    // queue. `shared_counters` lets a caller tell them apart.
+    $t->assertSame(2, (int) $services[0]['open_counters'] - (int) $services[0]['shared_counters'], 'two dedicated counters');
+    $t->assertSame(3, (int) $services[0]['open_counters'], 'capacity counts the floating desk too');
+    $t->assertSame(1, (int) $services[0]['shared_counters'], 'one shared counter');
+
+    // Billing has no dedicated desk at all: only the floating one.
+    $t->assertSame(1, (int) $services[1]['open_counters'], 'Billing capacity');
+    $t->assertSame(1, (int) $services[1]['shared_counters'], 'Billing has only the shared desk');
 });
 
 exit($t->summary());

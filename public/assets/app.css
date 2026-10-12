@@ -1,0 +1,482 @@
+/* ==========================================================================
+   Smart QMS — application styles
+   Layers on top of Bootstrap 5.3. The design goal is legibility at a glance:
+   the token code and the next action should be readable from arm's length.
+   ========================================================================== */
+
+:root {
+    --qms-ink: #14181f;
+    --qms-ink-soft: #4a5464;
+    --qms-paper: #f4f2ee;
+    --qms-surface: #ffffff;
+    --qms-line: #ddd8cf;
+    --qms-accent: #0d6e63;
+    --qms-accent-soft: #e3f0ee;
+    --qms-warn: #9a5b06;
+    --qms-danger: #9f1d1d;
+    --qms-mono: ui-monospace, "Cascadia Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+    --qms-radius: 10px;
+}
+
+.qms-body {
+    background: var(--qms-paper);
+    color: var(--qms-ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+}
+
+/* ---------------------------------------------------------------- login -- */
+
+.qms-body--login {
+    display: grid;
+    place-items: center;
+    background:
+        radial-gradient(1100px 500px at 12% -10%, #dfeae7 0%, transparent 60%),
+        var(--qms-ink);
+}
+
+.qms-login {
+    width: 100%;
+    max-width: 27rem;
+    padding: 1.5rem;
+}
+
+.qms-login__card {
+    background: var(--qms-surface);
+    border: 1px solid var(--qms-line);
+    border-radius: 14px;
+    padding: 2rem;
+    box-shadow: 0 18px 50px rgba(8, 12, 18, 0.35);
+}
+
+.qms-login__eyebrow {
+    margin: 0 0 .35rem;
+    font-family: var(--qms-mono);
+    font-size: .75rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--qms-accent);
+}
+
+.qms-login__title {
+    margin: 0 0 1.25rem;
+    font-size: 1.6rem;
+    font-weight: 650;
+    letter-spacing: -.01em;
+}
+
+.qms-login__error {
+    margin: 0 0 1rem;
+    padding: .7rem .85rem;
+    border-left: 3px solid var(--qms-danger);
+    background: #fdf1f1;
+    color: var(--qms-danger);
+    font-size: .9rem;
+    border-radius: 0 6px 6px 0;
+}
+
+.qms-field {
+    display: block;
+    margin-bottom: 1.1rem;
+}
+
+.qms-field__label {
+    display: block;
+    margin-bottom: .35rem;
+    font-size: .8rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--qms-ink-soft);
+}
+
+.qms-field__input {
+    width: 100%;
+    padding: .7rem .8rem;
+    border: 1px solid var(--qms-line);
+    border-radius: var(--qms-radius);
+    font-size: 1rem;
+    background: #fcfbf9;
+}
+
+.qms-field__input:focus {
+    outline: 2px solid var(--qms-accent);
+    outline-offset: 1px;
+    border-color: var(--qms-accent);
+}
+
+.qms-login__submit {
+    width: 100%;
+    padding: .8rem 1rem;
+    border: 0;
+    border-radius: var(--qms-radius);
+    background: var(--qms-accent);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.qms-login__submit:disabled {
+    background: #9aa3a1;
+    cursor: not-allowed;
+}
+
+.qms-login__hint {
+    margin: 1.25rem 0 0;
+    font-size: .78rem;
+    line-height: 1.5;
+    color: var(--qms-ink-soft);
+}
+
+.qms-login__hint code {
+    font-family: var(--qms-mono);
+    font-size: .74rem;
+    background: #f0ece5;
+    padding: .1rem .3rem;
+    border-radius: 4px;
+}
+
+/* --------------------------------------------------------------- topbar -- */
+
+.qms-topbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    padding: .85rem 1.25rem;
+    background: var(--qms-ink);
+    color: #eef1f4;
+}
+
+.qms-topbar__brand {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+}
+
+.qms-topbar__dot {
+    width: .6rem;
+    height: .6rem;
+    border-radius: 50%;
+    background: #46d6a8;
+    box-shadow: 0 0 0 4px rgba(70, 214, 168, .18);
+}
+
+.qms-topbar__name {
+    font-weight: 650;
+    letter-spacing: -.01em;
+}
+
+.qms-topbar__sub {
+    font-family: var(--qms-mono);
+    font-size: .72rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #97a3b3;
+}
+
+.qms-topbar__actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.qms-desk {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.qms-desk__label {
+    font-size: .72rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #97a3b3;
+}
+
+.qms-desk__select {
+    padding: .4rem .6rem;
+    border-radius: 8px;
+    border: 1px solid #3a4453;
+    background: #1d232c;
+    color: #eef1f4;
+    font-size: .92rem;
+}
+
+.qms-btn {
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: .4rem .8rem;
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.qms-btn--ghost {
+    background: transparent;
+    border-color: #3a4453;
+    color: #cdd5df;
+}
+
+.qms-btn--ghost:hover {
+    border-color: #5d6a7d;
+    color: #fff;
+}
+
+/* --------------------------------------------------------------- status -- */
+
+.qms-status {
+    margin: 0;
+    padding: .35rem 1.25rem;
+    font-family: var(--qms-mono);
+    font-size: .74rem;
+    color: var(--qms-ink-soft);
+    background: #eae6df;
+    border-bottom: 1px solid var(--qms-line);
+}
+
+.qms-status--error {
+    background: #fbeaea;
+    color: var(--qms-danger);
+}
+
+/* ----------------------------------------------------------- main layout -- */
+
+.qms-main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    gap: 1.25rem;
+    padding: 1.25rem;
+    align-items: start;
+}
+
+@media (max-width: 900px) {
+    .qms-main {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.qms-counters {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+    gap: 1rem;
+}
+
+/* ---------------------------------------------------------- counter card -- */
+
+.qms-card {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    background: var(--qms-surface);
+    border: 1px solid var(--qms-line);
+    border-top: 4px solid #b9b2a6;
+    border-radius: var(--qms-radius);
+    padding: 1rem;
+}
+
+.qms-card--mine {
+    border-top-color: var(--qms-accent);
+    box-shadow: 0 0 0 3px var(--qms-accent-soft);
+}
+
+.qms-card--serving {
+    border-top-color: var(--qms-warn);
+}
+
+.qms-card--closed {
+    opacity: .6;
+}
+
+.qms-card__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: .5rem;
+}
+
+.qms-card__name {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 650;
+}
+
+.qms-card__staff {
+    display: block;
+    font-size: .74rem;
+    color: var(--qms-ink-soft);
+}
+
+.qms-pill {
+    font-family: var(--qms-mono);
+    font-size: .68rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: .2rem .5rem;
+    border-radius: 999px;
+    background: #ece8e1;
+    color: var(--qms-ink-soft);
+    white-space: nowrap;
+}
+
+.qms-pill--called {
+    background: #fdeed2;
+    color: var(--qms-warn);
+}
+
+.qms-pill--serving {
+    background: var(--qms-accent);
+    color: #fff;
+}
+
+.qms-pill--idle {
+    background: #ece8e1;
+}
+
+.qms-token {
+    margin: 0;
+    font-family: var(--qms-mono);
+    font-size: clamp(2.6rem, 7vw, 3.6rem);
+    font-weight: 700;
+    letter-spacing: -.03em;
+    line-height: 1;
+}
+
+.qms-token--empty {
+    color: #b9b2a6;
+    font-size: 2.2rem;
+}
+
+.qms-token__meta {
+    margin: 0;
+    font-size: .8rem;
+    color: var(--qms-ink-soft);
+    min-height: 1.1rem;
+}
+
+.qms-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+    margin-top: auto;
+}
+
+.qms-card__actions .btn {
+    font-weight: 600;
+}
+
+/* ------------------------------------------------------------- side rail -- */
+
+.qms-side {
+    background: var(--qms-surface);
+    border: 1px solid var(--qms-line);
+    border-radius: var(--qms-radius);
+    padding: 1rem;
+}
+
+.qms-side__title {
+    margin: 0 0 .6rem;
+    font-family: var(--qms-mono);
+    font-size: .72rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--qms-ink-soft);
+}
+
+.qms-side__title:not(:first-child) {
+    margin-top: 1.4rem;
+}
+
+.qms-services {
+    display: grid;
+    gap: .5rem;
+}
+
+.qms-service {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    gap: .5rem;
+    padding: .5rem .6rem;
+    border: 1px solid var(--qms-line);
+    border-radius: 8px;
+}
+
+.qms-service__name {
+    font-size: .9rem;
+    font-weight: 600;
+}
+
+.qms-service__meta {
+    grid-column: 1 / -1;
+    font-size: .74rem;
+    color: var(--qms-ink-soft);
+}
+
+.qms-service__waiting {
+    font-family: var(--qms-mono);
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.qms-totals {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: .3rem .75rem;
+    margin: 0;
+    font-size: .85rem;
+}
+
+.qms-totals dt {
+    color: var(--qms-ink-soft);
+    font-weight: 500;
+}
+
+.qms-totals dd {
+    margin: 0;
+    font-family: var(--qms-mono);
+    font-weight: 700;
+    text-align: right;
+}
+
+.qms-side__note {
+    margin: 1.25rem 0 0;
+    font-size: .74rem;
+    color: var(--qms-ink-soft);
+}
+
+.qms-empty {
+    margin: 0;
+    color: var(--qms-ink-soft);
+    font-size: .88rem;
+}
+
+/* ---------------------------------------------------------------- toast -- */
+
+.qms-toast {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    max-width: 22rem;
+    padding: .75rem 1rem;
+    border-radius: 8px;
+    background: var(--qms-ink);
+    color: #fff;
+    font-size: .88rem;
+    box-shadow: 0 12px 30px rgba(10, 14, 20, .35);
+    z-index: 50;
+}
+
+.qms-toast--error {
+    background: var(--qms-danger);
+}
+
+.qms-toast--info {
+    background: var(--qms-accent);
+}
+
+.qms-toast[hidden] {
+    display: none;
+}

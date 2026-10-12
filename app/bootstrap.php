@@ -51,6 +51,9 @@ spl_autoload_register(static function (string $class): void {
 Env::load(BASE_PATH . '/.env');
 Config::load(BASE_PATH . '/config/config.php');
 
+// --- 3b. view helpers (e(), asset(), url()) -------------------------------
+require APP_PATH . '/Core/helpers.php';
+
 // --- 4. timezone ----------------------------------------------------------
 // The queue day boundary is computed in this zone and passed to MySQL as a
 // parameter; CURDATE() is never trusted (its session tz is pinned separately).
@@ -59,10 +62,10 @@ date_default_timezone_set(Config::string('app.timezone', 'Asia/Kolkata'));
 // --- 5. errors ------------------------------------------------------------
 Logger::configure(STORAGE_PATH . '/logs');
 
-// Test runs (tests/bootstrap.php sets QMS_TESTING=1) keep PHP's own error
-// reporting: an uncaught failure must produce a non-zero exit code, not a
-// friendly JSON envelope that looks like success.
-if (getenv('QMS_TESTING') === '1') {
+// CLI keeps PHP's own error reporting: a crashed script or test must exit
+// non-zero and show why, rather than print a friendly JSON envelope that looks
+// like success. The JSON boundary exists for HTTP clients.
+if (PHP_SAPI === 'cli') {
     error_reporting(E_ALL);
     ini_set('display_errors', '1');
 } else {

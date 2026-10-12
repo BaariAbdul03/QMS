@@ -93,6 +93,13 @@ final class Response
         return $this;
     }
 
+    public function withStatus(int $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
     public function withoutCache(): self
     {
         $this->headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0';
