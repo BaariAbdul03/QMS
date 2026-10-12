@@ -51,6 +51,12 @@ final class Database
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_STRINGIFY_FETCHES  => false,
                 PDO::ATTR_PERSISTENT         => false,
+                // Report MATCHED rows instead of CHANGED rows. Guarded state
+                // transitions rely on rowCount() == 0 meaning "the guard did not
+                // match"; without this, re-running an idempotent UPDATE (e.g.
+                // recall twice inside the same second) would look like an
+                // illegal transition even though the row was found.
+                PDO::MYSQL_ATTR_FOUND_ROWS   => true,
             ]);
         } catch (PDOException $e) {
             // Deliberately vague: the DSN may contain the username. The real

@@ -58,4 +58,13 @@ date_default_timezone_set(Config::string('app.timezone', 'Asia/Kolkata'));
 
 // --- 5. errors ------------------------------------------------------------
 Logger::configure(STORAGE_PATH . '/logs');
-ErrorHandler::register(Config::bool('app.debug', false));
+
+// Test runs (tests/bootstrap.php sets QMS_TESTING=1) keep PHP's own error
+// reporting: an uncaught failure must produce a non-zero exit code, not a
+// friendly JSON envelope that looks like success.
+if (getenv('QMS_TESTING') === '1') {
+    error_reporting(E_ALL);
+    ini_set('display_errors', '1');
+} else {
+    ErrorHandler::register(Config::bool('app.debug', false));
+}

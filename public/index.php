@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 use App\Core\ErrorHandler;
 use App\Core\Request;
+use App\Core\Response;
 use App\Core\Router;
 
 require dirname(__DIR__) . '/app/bootstrap.php';
@@ -22,9 +23,4 @@ $router  = new Router();
 // Route table lives in config/routes.php; later phases add their routes there.
 (require BASE_PATH . '/config/routes.php')($router);
 
-try {
-    $router->dispatch($request)->send();
-} catch (Throwable $e) {
-    ErrorHandler::report($e);
-    ErrorHandler::response($e)->send();
-}
+ErrorHandler::handle(static fn (): Response => $router->dispatch($request))->send();

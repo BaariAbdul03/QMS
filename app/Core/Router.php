@@ -174,7 +174,9 @@ final class Router
     {
         $params  = [];
         $regex   = preg_replace_callback(
-            '/\{([a-zA-Z_][a-zA-Z0-9_]*)(?::([^}]+))?\}/',
+            // The constraint may itself contain braces ("{id:\d{2}}"), so it is
+            // matched as "anything without braces, or one balanced {..} group".
+            '/\{([a-zA-Z_][a-zA-Z0-9_]*)(?::((?:[^{}]|\{[^{}]*\})*))?\}/',
             static function (array $m) use (&$params): string {
                 $name       = $m[1];
                 $constraint = $m[2] ?? '[^/]+';

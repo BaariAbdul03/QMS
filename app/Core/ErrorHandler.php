@@ -57,6 +57,27 @@ final class ErrorHandler
     }
 
     /**
+     * The request error boundary. Every entry point (the front controller, and
+     * tests that drive the router directly) runs its work through here, so the
+     * exception -> HTTP mapping is exercised identically in both.
+     */
+    public static function handle(callable $work): Response
+    {
+        try {
+            return $work();
+        } catch (AppException $e) {
+            // Expected, client-facing outcome (404/409/422/...). Not an error.
+            Logger::info('Handled: ' . $e->getMessage(), ['status' => $e->statusCode()]);
+
+            return self::response($e);
+        } catch (Throwable $e) {
+            self::report($e);
+
+            return self::response($e);
+        }
+    }
+
+    /**
      * Build the client-facing response for a throwable.
      */
     public static function response(Throwable $e): Response
