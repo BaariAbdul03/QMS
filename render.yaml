@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: smart-qms
+    runtime: docker
+    plan: free
+    region: oregon
+    healthCheckPath: /api/health
+    envVars:
+      - key: APP_NAME
+        value: "Smart QMS"
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "0"
+      - key: APP_TIMEZONE
+        value: Asia/Kolkata
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "4000"
+      - key: DB_NAME
+        value: test
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_TIMEZONE
+        value: "+05:30"
+      - key: DB_SSL
+        value: "true"
+      - key: STAFF_PASSWORD_HASH
+        sync: false
+      - key: SESSION_NAME
+        value: qms_staff
+      - key: RATE_LIMIT_TOKENS_PER_MINUTE
+        value: "10"

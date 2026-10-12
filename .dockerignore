@@ -1,0 +1,9 @@
+.git
+.github
+.dev
+.freebuff
+tests
+bin
+.env
+*.log
+*.pid

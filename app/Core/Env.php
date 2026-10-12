@@ -27,9 +27,10 @@ final class Env
         }
 
         if (!is_file($path) || !is_readable($path)) {
-            throw new RuntimeException(
-                sprintf('Environment file not found or unreadable: %s (copy .env.example to .env)', $path)
-            );
+            // In cloud container platforms (e.g. Render, Docker), environment
+            // variables are injected directly via the process (getenv).
+            self::$loaded = true;
+            return;
         }
 
         $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);

@@ -32,6 +32,9 @@ return [
         // Pin the MySQL session timezone to the app zone so NOW() and the
         // queue_date the app computes always agree (plan item 7).
         'timezone' => Env::get('DB_TIMEZONE', '+05:30'),
+        // Cloud MySQL (e.g. TiDB Serverless, Aiven) requires TLS/SSL encryption.
+        'ssl'      => Env::bool('DB_SSL', false),
+        'ssl_ca'   => Env::get('DB_SSL_CA', ''),
     ],
 
     'queue' => [

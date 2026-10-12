@@ -44,20 +44,32 @@ final class Database
 
         self::$dsn = sprintf('mysql:host=%s;port=%d;dbname=%s;charset=%s', $host, $port, $name, $charset);
 
+        $options = [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_STRINGIFY_FETCHES  => false,
+            PDO::ATTR_PERSISTENT         => false,
+            // Report MATCHED rows instead of CHANGED rows. Guarded state
+            // transitions rely on rowCount() == 0 meaning "the guard did not
+            // match"; without this, re-running an idempotent UPDATE (e.g.
+            // recall twice inside the same second) would look like an
+            // illegal transition even though the row was found.
+            PDO::MYSQL_ATTR_FOUND_ROWS   => true,
+        ];
+
+        if (!empty($config['ssl']) && defined('PDO::MYSQL_ATTR_SSL_CA')) {
+            $ca = (string) ($config['ssl_ca'] ?? '');
+            if ($ca !== '' && is_file($ca)) {
+                $options[PDO::MYSQL_ATTR_SSL_CA] = $ca;
+            } elseif (is_file('/etc/ssl/certs/ca-certificates.crt')) {
+                // Debian/Ubuntu container standard CA bundle
+                $options[PDO::MYSQL_ATTR_SSL_CA] = '/etc/ssl/certs/ca-certificates.crt';
+            }
+        }
+
         try {
-            self::$pdo = new PDO(self::$dsn, (string) ($config['user'] ?? ''), (string) ($config['password'] ?? ''), [
-                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_EMULATE_PREPARES   => false,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_STRINGIFY_FETCHES  => false,
-                PDO::ATTR_PERSISTENT         => false,
-                // Report MATCHED rows instead of CHANGED rows. Guarded state
-                // transitions rely on rowCount() == 0 meaning "the guard did not
-                // match"; without this, re-running an idempotent UPDATE (e.g.
-                // recall twice inside the same second) would look like an
-                // illegal transition even though the row was found.
-                PDO::MYSQL_ATTR_FOUND_ROWS   => true,
-            ]);
+            self::$pdo = new PDO(self::$dsn, (string) ($config['user'] ?? ''), (string) ($config['password'] ?? ''), $options);
         } catch (PDOException $e) {
             // Deliberately vague: the DSN may contain the username. The real
             // driver error travels as $previous and is logged by ErrorHandler.
