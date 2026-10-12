@@ -1,0 +1,21 @@
+# Secrets
+/.env
+
+# Freebuff agent workspace metadata
+/.freebuff/
+
+# Local dev runtime (isolated MySQL data directory, pid/err files, scripts)
+/.dev/
+
+# Logs
+/storage/logs/*.log
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Vendor (there is no Composer in this project, but be explicit)
+/vendor/

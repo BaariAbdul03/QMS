@@ -1,0 +1,8 @@
+# Normalise line endings in the repository so Windows checkouts do not
+# rewrite every file. PHP/SQL/Markdown are stored with LF.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.mp3 binary
+*.ico binary
