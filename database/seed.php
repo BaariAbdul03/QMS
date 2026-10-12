@@ -110,14 +110,36 @@ function seedDay(PDO $pdo, string $date, int $serviceId, string $prefix, int $co
     return [$number, $cursor];
 }
 
+/** Highest number already allocated for a service on a date (0 when unused). */
+function maxNumber(PDO $pdo, int $serviceId, string $date): int
+{
+    $statement = $pdo->prepare('SELECT COALESCE(MAX(number), 0) FROM tokens WHERE service_id = ? AND queue_date = ?');
+    $statement->execute([$serviceId, $date]);
+
+    return (int) $statement->fetchColumn();
+}
+
+/** How much finished history a service already has for a date. */
+function completedCount(PDO $pdo, int $serviceId, string $date): int
+{
+    $statement = $pdo->prepare("SELECT COUNT(*) FROM tokens WHERE service_id = ? AND queue_date = ? AND status = 'completed'");
+    $statement->execute([$serviceId, $date]);
+
+    return (int) $statement->fetchColumn();
+}
+
 // 1 = General OPD served by counters 1 and 2; 2 = Billing served by counter 3.
-$desks = [
-    ['service' => 1, 'counter' => 1, 'prefix' => 'A'],
-    ['service' => 1, 'counter' => 2, 'prefix' => 'A'],
-    ['service' => 2, 'counter' => 3, 'prefix' => 'B'],
+// Numbers are allocated per service per day, so the desks of one service share
+// a single sequence and the counters are listed here in the order they draw
+// from it.
+$desksByService = [
+    1 => ['prefix' => 'A', 'counters' => [1, 2]],
+    2 => ['prefix' => 'B', 'counters' => [3]],
 ];
 
-$created = 0;
+$seeded  = 0;
+$skipped = 0;
+$liveSkipped = 0;
 
 for ($daysAgo = 2; $daysAgo >= 0; $daysAgo--) {
     $day   = Clock::now()->modify(sprintf('-%d days', $daysAgo));
@@ -131,38 +153,31 @@ for ($daysAgo = 2; $daysAgo >= 0; $daysAgo--) {
         $close   = $now < $open ? $open->modify('+30 minutes') : $now->modify('-15 minutes');
     }
 
-    // Per day, numbering restarts; keep one running number per service.
-    $next = [1 => 1, 2 => 1];
-
-    foreach ($desks as $desk) {
-        [$last] = seedDay(
-            $pdo,
-            $date,
-            $desk['service'],
-            $desk['prefix'],
-            $desk['counter'],
-            $open,
-            $close,
-            $next[$desk['service']]
-        );
-
-        $next[$desk['service']] = $last;
-
-        if ($daysAgo > 0 || $last > 0) {
-            $created += 1;
+    foreach ($desksByService as $serviceId => $desk) {
+        // Re-running the seeder must not restart the day's numbering and collide
+        // with the tokens already there, so a day that has history is left as
+        // it is. That is what makes this script safe to run twice — the demo
+        // reset path is reset.php, not a second seed.
+        if (completedCount($pdo, $serviceId, $date) > 0) {
+            $skipped++;
+            continue;
         }
-    }
 
-    // Keep the allocation row ahead of the history for every service/day.
-    foreach ([1 => 'A', 2 => 'B'] as $serviceId => $prefix) {
-        $max = (int) $pdo->query(
-            sprintf('SELECT COALESCE(MAX(number), 0) FROM tokens WHERE service_id = %d AND queue_date = %s', $serviceId, $pdo->quote($date))
-        )->fetchColumn();
+        // Continue above anything already allocated (a mix of live tokens and
+        // history is fine); 0 here means the first visitor of the day is A-001.
+        $number = maxNumber($pdo, $serviceId, $date);
 
+        foreach ($desk['counters'] as $counterId) {
+            [$number] = seedDay($pdo, $date, $serviceId, $desk['prefix'], $counterId, $open, $close, $number);
+        }
+
+        $seeded++;
+
+        // Keep the allocation row ahead of the history for this service/day.
         $pdo->prepare(
             'INSERT INTO queue_counters (service_id, queue_date, last_number) VALUES (?, ?, ?)
              ON DUPLICATE KEY UPDATE last_number = GREATEST(last_number, ?)'
-        )->execute([$serviceId, $date, $max, $max]);
+        )->execute([$serviceId, $date, $number, $number]);
     }
 }
 
@@ -174,6 +189,10 @@ $now = Clock::now();
 
 // A counter holds at most one token, so the two active visitors for General OPD
 // sit on two different desks rather than both on Counter 1.
+//
+// A service that already has people in the queue today is skipped as well: the
+// live queue is what a visitor sees, and doubling it on a re-run would look
+// like a bug during the demo.
 $live = [
     [
         'service' => 1,
@@ -207,6 +226,17 @@ $advance = $pdo->prepare(
 
 foreach ($live as $spec) {
     $serviceId = $spec['service'];
+
+    $busy = $pdo->prepare(
+        "SELECT COUNT(*) FROM tokens WHERE service_id = ? AND queue_date = ? AND status IN ('waiting', 'called', 'serving')"
+    );
+    $busy->execute([$serviceId, $today]);
+
+    if ((int) $busy->fetchColumn() > 0) {
+        $liveSkipped++;
+        continue;
+    }
+
     $row = $pdo->prepare('SELECT last_number FROM queue_counters WHERE service_id = ? AND queue_date = ?');
     $row->execute([$serviceId, $today]);
     $number = (int) $row->fetchColumn();
@@ -270,7 +300,9 @@ $summary = $pdo->query(
     "SELECT queue_date, status, COUNT(*) AS c FROM tokens GROUP BY queue_date, status ORDER BY queue_date, status"
 )->fetchAll();
 
-echo PHP_EOL . 'Seeded demo data.' . PHP_EOL . PHP_EOL;
+echo PHP_EOL . 'Seeded demo data.' . PHP_EOL;
+echo sprintf('  history: %d day/service group(s) created, %d left alone', $seeded, $skipped) . PHP_EOL;
+echo sprintf('  live queue: %d service(s) already had people waiting', $liveSkipped) . PHP_EOL . PHP_EOL;
 
 $byDate = [];
 

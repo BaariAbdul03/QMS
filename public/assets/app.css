@@ -906,3 +906,66 @@
         grid-template-columns: minmax(0, 1fr);
     }
 }
+/* --------------------------------------------------------------------------
+   Display board · sound control
+   --------------------------------------------------------------------------
+   Audible announcements need one click before the browser will allow them, so
+   the control has to be visible from across a waiting room and read clearly as
+   an instruction rather than as a settings toggle.
+   -------------------------------------------------------------------------- */
+
+.qms-board__head-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.qms-sound {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .45rem .9rem;
+    font: inherit;
+    font-size: .85rem;
+    color: #a9b6c6;
+    background: rgba(255, 255, 255, .05);
+    border: 1px solid #223040;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: color .15s ease, border-color .15s ease, background .15s ease;
+}
+
+.qms-sound:hover {
+    color: #eaf2f8;
+    border-color: #33475e;
+}
+
+.qms-sound:focus-visible {
+    outline: 2px solid #46d6a8;
+    outline-offset: 2px;
+}
+
+.qms-sound--on {
+    color: #46d6a8;
+    background: rgba(70, 214, 168, .12);
+    border-color: rgba(70, 214, 168, .45);
+}
+
+.qms-sound--unavailable {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.qms-sound__icon {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+/* A waiting-room screen is often a TV at the far end of a room: give the
+   control room to breathe on small viewports by wrapping the header. */
+@media (max-width: 640px) {
+    .qms-board__head {
+        flex-wrap: wrap;
+        gap: .75rem;
+    }
+}

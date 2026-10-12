@@ -4,7 +4,13 @@
             <span class="qms-board__dot" aria-hidden="true"></span>
             <span>Smart QMS</span>
         </div>
-        <div class="qms-board__clock" id="qms-clock" aria-hidden="true">--:--:--</div>
+        <div class="qms-board__head-right">
+            <button type="button" class="qms-sound" id="qms-sound" aria-pressed="false">
+                <span class="qms-sound__icon" aria-hidden="true">🔔</span>
+                <span class="qms-sound__label">Click to enable sound</span>
+            </button>
+            <div class="qms-board__clock" id="qms-clock" aria-hidden="true">--:--:--</div>
+        </div>
     </header>
 
     <main class="qms-board__main">
@@ -28,5 +34,7 @@
 <script type="application/json" id="qms-config"><?= json_script([
     'pollMs' => 3000,
     'api'    => $api,
+    'speak'  => true,
 ]) ?></script>
 <script src="<?= e(asset('display.js')) ?>"></script>
+<script src="<?= e(asset('board-sound.js')) ?>"></script>
